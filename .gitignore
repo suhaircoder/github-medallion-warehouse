@@ -1,0 +1,20 @@
+.DS_Store
+
+# dbt artifacts
+target/
+dbt_packages/
+logs/
+
+# local credentials and profiles
+/profiles.yml
+*.json
+*.key
+
+# Python environments
+.venv/
+venv/
+__pycache__/
+
+# IDE files
+.vscode/
+.idea/

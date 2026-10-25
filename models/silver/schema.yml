@@ -1,0 +1,94 @@
+version: 2
+
+models:
+  - name: silver_github_events
+    description: Clean event-grain model with one row per GitHub Archive event.
+    columns:
+      - name: event_key
+        description: Surrogate key generated from the source event id.
+        tests:
+          - unique
+          - not_null
+      - name: event_id
+        description: Source GitHub Archive event id.
+        tests:
+          - unique
+          - not_null
+      - name: event_type
+        description: Source event type.
+        tests:
+          - not_null
+      - name: event_created_at
+        description: Event timestamp.
+        tests:
+          - not_null
+
+  - name: silver_actors
+    description: Latest observed actor attributes and activity windows.
+    columns:
+      - name: actor_id
+        description: Natural GitHub actor id.
+        tests:
+          - unique
+          - not_null
+
+  - name: silver_repositories
+    description: Latest observed repository attributes and activity windows.
+    columns:
+      - name: repo_id
+        description: Natural GitHub repository id.
+        tests:
+          - unique
+          - not_null
+      - name: repo_name
+        description: Repository full name.
+        tests:
+          - not_null
+
+  - name: silver_organizations
+    description: Latest observed organization attributes and activity windows.
+    columns:
+      - name: org_id
+        description: Natural GitHub organization id.
+        tests:
+          - unique
+          - not_null
+
+  - name: silver_pull_requests
+    description: Pull request event stream with sequencing and observed lifecycle metrics.
+    columns:
+      - name: pull_request_event_key
+        description: Surrogate key for a pull request event.
+        tests:
+          - unique
+          - not_null
+      - name: pull_request_id
+        description: Natural GitHub pull request id.
+        tests:
+          - not_null
+
+  - name: silver_issues
+    description: Issue event stream with sequencing and observed lifecycle metrics.
+    columns:
+      - name: issue_event_key
+        description: Surrogate key for an issue event.
+        tests:
+          - unique
+          - not_null
+      - name: issue_id
+        description: Natural GitHub issue id.
+        tests:
+          - not_null
+
+  - name: silver_push_commits
+    description: PushEvent commits flattened to one row per pushed commit.
+    columns:
+      - name: push_commit_key
+        description: Surrogate key for a commit observed in a push event.
+        tests:
+          - unique
+          - not_null
+      - name: commit_sha
+        description: Git commit SHA.
+        tests:
+          - not_null

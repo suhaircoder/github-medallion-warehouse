@@ -1,0 +1,34 @@
+version: 2
+
+exposures:
+  - name: github_repository_health_dashboard
+    label: GitHub Repository Health Dashboard
+    type: dashboard
+    maturity: medium
+    description: >
+      Portfolio dashboard concept for monitoring open-source repository activity,
+      contributor engagement, pull request flow, issue flow, and overall project
+      health.
+    depends_on:
+      - ref('mart_repository_activity_daily')
+      - ref('mart_actor_contributions_daily')
+      - ref('mart_open_source_project_health')
+    owner:
+      name: Abdulrahman Alnosila
+      email: replace-with-your-email@example.com
+
+  - name: github_activity_analytics_dataset
+    label: GitHub Activity Analytics Dataset
+    type: application
+    maturity: high
+    description: >
+      Analytics-ready dataset for repository, actor, commit, pull request, and
+      issue activity built from GitHub Archive public events.
+    depends_on:
+      - ref('fact_github_events')
+      - ref('fact_pushes')
+      - ref('fact_pull_requests')
+      - ref('fact_issues')
+    owner:
+      name: Abdulrahman Alnosila
+      email: replace-with-your-email@example.com

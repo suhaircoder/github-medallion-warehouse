@@ -1,0 +1,17 @@
+event_type,event_family,is_core_warehouse_event
+PushEvent,code,true
+PullRequestEvent,collaboration,true
+PullRequestReviewEvent,collaboration,true
+PullRequestReviewCommentEvent,collaboration,true
+IssuesEvent,planning,true
+IssueCommentEvent,planning,true
+CreateEvent,repository,true
+DeleteEvent,repository,true
+ForkEvent,repository,true
+WatchEvent,repository,true
+ReleaseEvent,delivery,true
+CommitCommentEvent,code,false
+GollumEvent,documentation,false
+MemberEvent,repository,false
+PublicEvent,repository,false
+SponsorshipEvent,community,false

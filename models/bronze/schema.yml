@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: bronze_github_events
+    description: >
+      Bronze-layer GitHub Archive events sourced from the public githubarchive.day
+      wildcard tables. The model keeps raw event context, extracts common payload
+      attributes, and flattens PushEvent commits to support downstream modeling.
+    config:
+      contract:
+        enforced: false
+    columns:
+      - name: event_id
+        description: Unique GitHub Archive event identifier.
+        tests:
+          - not_null
+
+      - name: event_type
+        description: GitHub event type emitted by the source stream.
+        tests:
+          - not_null
+
+      - name: repo_id
+        description: Numeric GitHub repository identifier.
+
+      - name: repo_name
+        description: Repository full name in owner/repository format.
+
+      - name: actor_id
+        description: Numeric GitHub actor identifier.
+
+      - name: actor_login
+        description: GitHub username associated with the event actor.
+
+      - name: org_id
+        description: Numeric GitHub organization identifier when present.
+
+      - name: event_created_at
+        description: Timestamp when the event was created in GitHub.
+        tests:
+          - not_null
+
+      - name: source_table_date
+        description: Date represented by the GitHub Archive source shard.
+        tests:
+          - not_null
+
+      - name: commit_sha
+        description: Commit SHA when the event is a PushEvent with commits.
+
+      - name: raw_payload
+        description: Original JSON payload from GitHub Archive.

@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: mart_repository_activity_daily
+    description: Daily repository activity mart with rolling activity and ranking metrics.
+    columns:
+      - name: activity_date
+        description: Date of repository activity.
+        tests:
+          - not_null
+      - name: repository_key
+        description: Repository dimension key.
+        tests:
+          - not_null
+
+  - name: mart_actor_contributions_daily
+    description: Daily actor contribution mart with rolling contribution metrics.
+    columns:
+      - name: activity_date
+        description: Date of actor activity.
+        tests:
+          - not_null
+      - name: actor_key
+        description: Actor dimension key.
+        tests:
+          - not_null
+
+  - name: mart_open_source_project_health
+    description: Repository health mart combining event volume, contributor, code, issue, and pull request signals.
+    columns:
+      - name: activity_date
+        description: Date of health scoring.
+        tests:
+          - not_null
+      - name: repository_key
+        description: Repository dimension key.
+        tests:
+          - not_null
+      - name: health_tier
+        description: Simple project health band based on daily activity score.
+        tests:
+          - accepted_values:
+              values: ['high', 'medium', 'low']

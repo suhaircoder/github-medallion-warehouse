@@ -1,0 +1,51 @@
+name: github_medallion_warehouse
+version: 1.0.0
+config-version: 2
+
+profile: github_medallion_warehouse
+
+model-paths:
+  - models
+analysis-paths:
+  - analyses
+test-paths:
+  - tests
+seed-paths:
+  - seeds
+macro-paths:
+  - macros
+snapshot-paths:
+  - snapshots
+
+target-path: target
+clean-targets:
+  - target
+  - dbt_packages
+  - logs
+
+vars:
+  bronze_start_date: '2024-01-01'
+  bronze_end_date: '2024-01-07'
+
+models:
+  github_medallion_warehouse:
+    +persist_docs:
+      relation: true
+      columns: true
+    bronze:
+      +schema: bronze
+      +materialized: incremental
+      +on_schema_change: sync_all_columns
+    silver:
+      +schema: silver
+      +materialized: table
+    gold:
+      +schema: gold
+      +materialized: table
+    marts:
+      +schema: marts
+      +materialized: table
+
+seeds:
+  github_medallion_warehouse:
+    +schema: reference

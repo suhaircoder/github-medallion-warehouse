@@ -1,0 +1,117 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: Calendar dimension generated from the configured project date range.
+    columns:
+      - name: date_key
+        description: Date key in YYYYMMDD format.
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_event_type
+    description: Conformed event type dimension from observed and mapped GitHub events.
+    columns:
+      - name: event_type_key
+        description: Surrogate key for event type.
+        tests:
+          - unique
+          - not_null
+      - name: event_type
+        description: GitHub event type.
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_actor
+    description: Actor dimension with latest observed profile fields.
+    columns:
+      - name: actor_key
+        description: Surrogate key for actor.
+        tests:
+          - unique
+          - not_null
+      - name: actor_id
+        description: Natural GitHub actor id.
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_repository
+    description: Repository dimension with parsed owner and repository names.
+    columns:
+      - name: repository_key
+        description: Surrogate key for repository.
+        tests:
+          - unique
+          - not_null
+      - name: repo_id
+        description: Natural GitHub repository id.
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_organization
+    description: Organization dimension with latest observed attributes.
+    columns:
+      - name: organization_key
+        description: Surrogate key for organization.
+        tests:
+          - unique
+          - not_null
+      - name: org_id
+        description: Natural GitHub organization id.
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_github_events
+    description: Event fact table at one row per GitHub Archive event.
+    columns:
+      - name: event_key
+        description: Event surrogate key.
+        tests:
+          - unique
+          - not_null
+      - name: date_key
+        description: Foreign key to dim_date.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: event_type_key
+        description: Foreign key to dim_event_type.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_event_type')
+              field: event_type_key
+
+  - name: fact_pushes
+    description: Push fact table at one row per pushed commit.
+    columns:
+      - name: push_commit_key
+        description: Surrogate key for pushed commit observation.
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_pull_requests
+    description: Pull request fact table at one row per pull request event.
+    columns:
+      - name: pull_request_event_key
+        description: Surrogate key for pull request event.
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_issues
+    description: Issue fact table at one row per issue event.
+    columns:
+      - name: issue_event_key
+        description: Surrogate key for issue event.
+        tests:
+          - unique
+          - not_null

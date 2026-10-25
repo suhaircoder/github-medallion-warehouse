@@ -1,0 +1,48 @@
+name: dbt CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  dbt-compile-and-lint:
+    name: dbt compile and SQL lint
+    runs-on: ubuntu-latest
+
+    env:
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_SERVICE_ACCOUNT_JSON: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
+      DBT_PROFILES_DIR: .ci
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install dbt packages
+        run: dbt deps
+
+      - name: Compile dbt project
+        if: env.GCP_PROJECT_ID != '' && env.GCP_SERVICE_ACCOUNT_JSON != ''
+        run: dbt compile --target ci
+
+      - name: Lint SQL
+        if: env.GCP_PROJECT_ID != '' && env.GCP_SERVICE_ACCOUNT_JSON != ''
+        run: sqlfluff lint models tests analyses
+
+      - name: Explain skipped credentialed checks
+        if: env.GCP_PROJECT_ID == '' || env.GCP_SERVICE_ACCOUNT_JSON == ''
+        run: |
+          echo "Skipping dbt compile and SQLFluff because GCP secrets are not configured."
+          echo "Add GCP_PROJECT_ID and GCP_SERVICE_ACCOUNT_JSON repository secrets to enable full CI."

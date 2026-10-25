@@ -1,0 +1,30 @@
+version: 2
+
+sources:
+  - name: github_archive
+    description: >
+      Public GitHub Archive event stream exposed in BigQuery. The Bronze model
+      reads the daily wildcard tables with explicit _TABLE_SUFFIX date filters
+      to control scan cost.
+    database: githubarchive
+    schema: day
+    loader: BigQuery Public Datasets
+    tables:
+      - name: daily_events
+        identifier: '*'
+        description: Daily GitHub Archive event shards queried as githubarchive.day.*.
+        columns:
+          - name: id
+            description: Source event id.
+          - name: type
+            description: GitHub event type.
+          - name: payload
+            description: Event-specific JSON payload.
+          - name: repo
+            description: Repository record.
+          - name: actor
+            description: Actor record.
+          - name: org
+            description: Organization record when present.
+          - name: created_at
+            description: Event creation timestamp.
