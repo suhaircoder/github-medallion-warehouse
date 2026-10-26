@@ -15,7 +15,6 @@ exposures:
       - ref('mart_open_source_project_health')
     owner:
       name: Abdulrahman Alnosila
-      email: replace-with-your-email@example.com
 
   - name: github_activity_analytics_dataset
     label: GitHub Activity Analytics Dataset
@@ -31,4 +30,3 @@ exposures:
       - ref('fact_issues')
     owner:
       name: Abdulrahman Alnosila
-      email: replace-with-your-email@example.com

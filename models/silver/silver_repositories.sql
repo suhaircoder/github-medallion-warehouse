@@ -8,6 +8,7 @@
 with repository_events as (
 
     select
+        event_id,
         repo_id,
         repo_name,
         repo_url,
@@ -26,7 +27,7 @@ ranked as (
         split(repo_name, '/')[safe_offset(1)] as repository_name,
         min(event_created_at) over (partition by repo_id) as first_seen_at,
         max(event_created_at) over (partition by repo_id) as last_seen_at,
-        count(*) over (partition by repo_id) as observed_event_rows,
+        count(distinct event_id) over (partition by repo_id) as observed_event_rows,
         count(distinct event_created_at) over (partition by repo_id) as active_event_timestamps,
         row_number() over (
             partition by repo_id

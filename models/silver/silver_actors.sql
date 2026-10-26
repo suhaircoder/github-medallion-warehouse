@@ -8,6 +8,7 @@
 with actor_events as (
 
     select
+        event_id,
         actor_id,
         actor_login,
         actor_url,
@@ -26,7 +27,7 @@ ranked as (
         *,
         min(event_created_at) over (partition by actor_id) as first_seen_at,
         max(event_created_at) over (partition by actor_id) as last_seen_at,
-        count(*) over (partition by actor_id) as observed_event_rows,
+        count(distinct event_id) over (partition by actor_id) as observed_event_rows,
         row_number() over (
             partition by actor_id
             order by event_created_at desc, loaded_at desc

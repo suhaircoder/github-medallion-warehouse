@@ -23,7 +23,7 @@ with actor_activity as (
         sum(coalesce(fact_github_events.commit_count, 0)) as observed_commits
     from {{ ref('fact_github_events') }} as fact_github_events
     where fact_github_events.actor_key is not null
-    group by 1, 2
+    group by fact_github_events.date_key, fact_github_events.actor_key
 
 ),
 
@@ -48,21 +48,35 @@ actor_daily as (
 
 )
 
+rolling_repositories as (
+
+    select
+        actor_daily.activity_date,
+        actor_daily.actor_key,
+        count(distinct fact_github_events.repository_key) as rolling_7_day_repositories_touched
+    from actor_daily
+    left join {{ ref('fact_github_events') }} as fact_github_events
+        on actor_daily.actor_key = fact_github_events.actor_key
+       and fact_github_events.event_date between date_sub(actor_daily.activity_date, interval 6 day)
+           and actor_daily.activity_date
+    group by actor_daily.activity_date, actor_daily.actor_key
+
+)
+
 select
-    *,
-    sum(total_events) over (
-        partition by actor_key
-        order by activity_date
-        rows between 6 preceding and current row
+    actor_daily.*,
+    sum(actor_daily.total_events) over (
+        partition by actor_daily.actor_key
+        order by actor_daily.activity_date
+        range between interval 6 day preceding and current row
     ) as rolling_7_day_events,
-    sum(repositories_touched) over (
-        partition by actor_key
-        order by activity_date
-        rows between 6 preceding and current row
-    ) as rolling_7_day_repositories_touched,
+    rolling_repositories.rolling_7_day_repositories_touched,
     dense_rank() over (
-        partition by activity_date
-        order by total_events desc
+        partition by actor_daily.activity_date
+        order by actor_daily.total_events desc
     ) as daily_actor_activity_rank,
     current_timestamp() as loaded_at
 from actor_daily
+left join rolling_repositories
+    on actor_daily.activity_date = rolling_repositories.activity_date
+   and actor_daily.actor_key = rolling_repositories.actor_key

@@ -3,6 +3,11 @@ version: 2
 models:
   - name: mart_repository_activity_daily
     description: Daily repository activity mart with rolling activity and ranking metrics.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - activity_date
+            - repository_key
     columns:
       - name: activity_date
         description: Date of repository activity.
@@ -15,6 +20,11 @@ models:
 
   - name: mart_actor_contributions_daily
     description: Daily actor contribution mart with rolling contribution metrics.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - activity_date
+            - actor_key
     columns:
       - name: activity_date
         description: Date of actor activity.
@@ -27,6 +37,11 @@ models:
 
   - name: mart_open_source_project_health
     description: Repository health mart combining event volume, contributor, code, issue, and pull request signals.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - activity_date
+            - repository_key
     columns:
       - name: activity_date
         description: Date of health scoring.

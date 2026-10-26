@@ -38,7 +38,7 @@ push_quality as (
         count(distinct commit_author_email_domain) as distinct_commit_email_domains
     from {{ ref('fact_pushes') }}
     where repository_key is not null
-    group by 1, 2
+    group by activity_date, repository_key
 
 ),
 
@@ -61,7 +61,7 @@ workflow_activity as (
             0 as closed_issues
         from {{ ref('fact_pull_requests') }}
         where repository_key is not null
-        group by 1, 2
+        group by activity_date, repository_key
 
         union all
 
@@ -74,9 +74,9 @@ workflow_activity as (
             sum(closed_issue_count) as closed_issues
         from {{ ref('fact_issues') }}
         where repository_key is not null
-        group by 1, 2
+        group by activity_date, repository_key
     )
-    group by 1, 2
+    group by activity_date, repository_key
 
 ),
 

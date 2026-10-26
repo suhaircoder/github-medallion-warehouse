@@ -8,7 +8,6 @@
       "granularity": "day"
     },
     cluster_by=['event_type', 'repo_id', 'actor_id'],
-    require_partition_filter=true,
     tags=['bronze', 'github_archive']
   )
 }}
@@ -64,7 +63,10 @@ commit_flattened as (
 
     select
         payload_enriched.* except (push_commits),
-        commit_offset + 1 as commit_sequence_number,
+        case
+            when json_value(commit_json, '$.sha') is null then null
+            else commit_offset + 1
+        end as commit_sequence_number,
         json_value(commit_json, '$.sha') as commit_sha,
         json_value(commit_json, '$.author.name') as commit_author_name,
         json_value(commit_json, '$.author.email') as commit_author_email,

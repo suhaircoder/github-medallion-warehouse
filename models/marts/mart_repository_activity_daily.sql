@@ -23,7 +23,7 @@ with event_activity as (
         sum(coalesce(fact_github_events.commit_count, 0)) as observed_commits
     from {{ ref('fact_github_events') }} as fact_github_events
     where fact_github_events.repository_key is not null
-    group by 1, 2
+    group by fact_github_events.date_key, fact_github_events.repository_key
 
 ),
 
@@ -50,21 +50,35 @@ repository_activity as (
 
 )
 
+rolling_actors as (
+
+    select
+        repository_activity.activity_date,
+        repository_activity.repository_key,
+        count(distinct fact_github_events.actor_key) as rolling_7_day_active_actors
+    from repository_activity
+    left join {{ ref('fact_github_events') }} as fact_github_events
+        on repository_activity.repository_key = fact_github_events.repository_key
+       and fact_github_events.event_date between date_sub(repository_activity.activity_date, interval 6 day)
+           and repository_activity.activity_date
+    group by repository_activity.activity_date, repository_activity.repository_key
+
+)
+
 select
-    *,
-    sum(total_events) over (
-        partition by repository_key
-        order by activity_date
-        rows between 6 preceding and current row
+    repository_activity.*,
+    sum(repository_activity.total_events) over (
+        partition by repository_activity.repository_key
+        order by repository_activity.activity_date
+        range between interval 6 day preceding and current row
     ) as rolling_7_day_events,
-    sum(active_actors) over (
-        partition by repository_key
-        order by activity_date
-        rows between 6 preceding and current row
-    ) as rolling_7_day_active_actors,
+    rolling_actors.rolling_7_day_active_actors,
     dense_rank() over (
-        partition by activity_date
-        order by total_events desc
+        partition by repository_activity.activity_date
+        order by repository_activity.total_events desc
     ) as daily_repository_activity_rank,
     current_timestamp() as loaded_at
 from repository_activity
+left join rolling_actors
+    on repository_activity.activity_date = rolling_actors.activity_date
+   and repository_activity.repository_key = rolling_actors.repository_key

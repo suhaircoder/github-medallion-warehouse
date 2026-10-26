@@ -9,8 +9,8 @@ with date_spine as (
     select calendar_date
     from unnest(
         generate_date_array(
-            date('{{ var("bronze_start_date") }}'),
-            date('{{ var("bronze_end_date") }}')
+            date_sub(date('{{ var("bronze_start_date") }}'), interval 1 day),
+            date_add(date('{{ var("bronze_end_date") }}'), interval 1 day)
         )
     ) as calendar_date
 

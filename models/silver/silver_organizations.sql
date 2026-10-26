@@ -8,6 +8,7 @@
 with organization_events as (
 
     select
+        event_id,
         org_id,
         org_login,
         org_url,
@@ -24,7 +25,7 @@ ranked as (
         *,
         min(event_created_at) over (partition by org_id) as first_seen_at,
         max(event_created_at) over (partition by org_id) as last_seen_at,
-        count(*) over (partition by org_id) as observed_event_rows,
+        count(distinct event_id) over (partition by org_id) as observed_event_rows,
         row_number() over (
             partition by org_id
             order by event_created_at desc, loaded_at desc

@@ -8,7 +8,7 @@ with daily_event_volume as (
         count(distinct repo_id) as active_repositories,
         count(distinct actor_id) as active_actors
     from {{ ref('bronze_github_events') }}
-    group by 1, 2
+    group by event_date, event_type
 
 )
 

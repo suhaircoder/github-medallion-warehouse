@@ -2,7 +2,9 @@ version: 2
 
 models:
   - name: dim_date
-    description: Calendar dimension generated from the configured project date range.
+    description: >
+      Calendar dimension for the configured Bronze date window, extended by one
+      day on each side so events archived across midnight still match.
     columns:
       - name: date_key
         description: Date key in YYYYMMDD format.

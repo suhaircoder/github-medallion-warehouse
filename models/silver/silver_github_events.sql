@@ -55,42 +55,38 @@ event_rollup as (
 typed_events as (
 
     select
-        {{ generate_surrogate_key(['event_id']) }} as event_key,
-        event_id,
-        event_type,
-        case
-            when event_type in ('PushEvent', 'CommitCommentEvent') then 'code'
-            when event_type in ('PullRequestEvent', 'PullRequestReviewEvent', 'PullRequestReviewCommentEvent') then 'collaboration'
-            when event_type in ('IssuesEvent', 'IssueCommentEvent') then 'planning'
-            when event_type in ('CreateEvent', 'DeleteEvent', 'ForkEvent', 'WatchEvent', 'ReleaseEvent') then 'repository'
-            else 'other'
-        end as event_family,
-        is_public,
-        repo_id,
-        repo_name,
-        actor_id,
-        actor_login,
-        org_id,
-        org_login,
-        event_created_at,
-        event_date,
-        extract(hour from event_created_at) as event_hour,
-        payload_action,
-        payload_ref,
-        payload_ref_type,
-        pull_request_id,
-        pull_request_number,
-        pull_request_state,
-        issue_id,
-        issue_number,
-        issue_state,
-        release_id,
-        push_size,
-        push_distinct_size,
-        commit_count,
+        {{ generate_surrogate_key(['event_rollup.event_id']) }} as event_key,
+        event_rollup.event_id,
+        event_rollup.event_type,
+        coalesce(event_type_mapping.event_family, 'other') as event_family,
+        event_rollup.is_public,
+        event_rollup.repo_id,
+        event_rollup.repo_name,
+        event_rollup.actor_id,
+        event_rollup.actor_login,
+        event_rollup.org_id,
+        event_rollup.org_login,
+        event_rollup.event_created_at,
+        event_rollup.event_date,
+        extract(hour from event_rollup.event_created_at) as event_hour,
+        event_rollup.payload_action,
+        event_rollup.payload_ref,
+        event_rollup.payload_ref_type,
+        event_rollup.pull_request_id,
+        event_rollup.pull_request_number,
+        event_rollup.pull_request_state,
+        event_rollup.issue_id,
+        event_rollup.issue_number,
+        event_rollup.issue_state,
+        event_rollup.release_id,
+        event_rollup.push_size,
+        event_rollup.push_distinct_size,
+        event_rollup.commit_count,
         current_timestamp() as transformed_at
     from event_rollup
-    where event_rank = 1
+    left join {{ ref('event_type_mapping') }} as event_type_mapping
+        on event_rollup.event_type = event_type_mapping.event_type
+    where event_rollup.event_rank = 1
 
 )
 
